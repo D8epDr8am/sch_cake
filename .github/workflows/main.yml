@@ -2,12 +2,19 @@ name: Build Padavan firmware
 
 on:
   workflow_dispatch:
+    inputs:
+      TARGET:
+        description: 'Target device'
+        required: true
+        default: 'TL_C20-V5'
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
+      - uses: actions/checkout@v4
+
       - name: Build firmware
-        uses: shvchk/padavan-builder-action@v1
-        with:
-          target: TL_C20-V5
+        run: |
+          curl -fsSL https://raw.githubusercontent.com/shvchk/padavan-builder/main/build.sh | \
+          TARGET=${{ github.event.inputs.TARGET }} bash
