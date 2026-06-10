@@ -1,0 +1,13 @@
+name: Build Padavan firmware
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Build firmware
+        uses: shvchk/padavan-builder-action@v1
+        with:
+          target: TL_C20-V5
