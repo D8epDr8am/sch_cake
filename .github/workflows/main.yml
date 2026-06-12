@@ -1,20 +1,43 @@
-name: Build Padavan firmware
+name: Build Padavan Firmware
 
+# Ручной запуск
 on:
   workflow_dispatch:
-    inputs:
-      TARGET:
-        description: 'Target device'
-        required: true
-        default: 'TL_C20-V5'
 
 jobs:
   build:
     runs-on: ubuntu-latest
-    steps:
-      - uses: actions/checkout@v4
 
+    # Принудительный переход на Node.js 24
+    env:
+      FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+    steps:
+      # Получаем исходники
+      - name: Checkout repository
+        uses: actions/checkout@v5  # Обновлено для поддержки Node.js 24
+
+      # Устанавливаем Node.js 24 (на всякий случай)
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: 24
+
+      # Настройка необходимых инструментов для сборки прошивки
+      - name: Install dependencies
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y build-essential git libssl-dev libncurses5-dev
+
+      # Основная сборка прошивки
       - name: Build firmware
         run: |
-          curl -fsSL https://raw.githubusercontent.com/shvchk/padavan-builder/main/build.sh | \
-          TARGET=${{ github.event.inputs.TARGET }} bash
+          chmod +x ./build.sh
+          ./build.sh
+
+      # Сохраняем артефакты прошивки
+      - name: Upload firmware
+        uses: actions/upload-artifact@v4
+        with:
+          name: padavan-firmware
+          path: ./output/firmware.bin
